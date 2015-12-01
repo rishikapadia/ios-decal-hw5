@@ -16,6 +16,7 @@ class PlayerViewController: UIViewController {
     var currentIndex: Int!
     var player: AVPlayer!
     var trackImageView: UIImageView!
+    var currLoaded: Bool!
     
     var playPauseButton: UIButton!
     var nextButton: UIButton!
@@ -37,6 +38,8 @@ class PlayerViewController: UIViewController {
         
         loadVisualElements()
         loadPlayerButtons()
+        
+        currLoaded = false
     }
     
     func loadVisualElements() {
@@ -130,7 +133,18 @@ class PlayerViewController: UIViewController {
         let track = tracks[currentIndex]
         let url = NSURL(string: "https://api.soundcloud.com/tracks/\(track.id)/stream?client_id=\(clientID)")!
         // FILL ME IN
-    
+        sender.selected = !sender.selected
+        if !currLoaded {
+            player.replaceCurrentItemWithPlayerItem(nil)
+            player.replaceCurrentItemWithPlayerItem(AVPlayerItem(URL: url))
+        }
+        
+        if sender.selected {
+            player.play()
+        } else {
+            player.pause()
+        }
+        currLoaded = true
     }
     
     /* 
@@ -140,7 +154,14 @@ class PlayerViewController: UIViewController {
      * Remember to update the currentIndex
      */
     func nextTrackTapped(sender: UIButton) {
-    
+        if currentIndex == (tracks.count - 1) {
+            return
+        }
+        currentIndex = currentIndex + 1
+        currLoaded = false
+        playPauseButton.selected = !playPauseButton.selected
+        playOrPauseTrack(playPauseButton)
+        loadTrackElements()
     }
 
     /*
@@ -154,7 +175,16 @@ class PlayerViewController: UIViewController {
      */
 
     func previousTrackTapped(sender: UIButton) {
-    
+        if currentIndex == 0 {
+            return
+        }
+        if player.currentTime().seconds < 3 {
+            currentIndex = currentIndex - 1
+        }
+        currLoaded = false
+        playPauseButton.selected = !playPauseButton.selected
+        playOrPauseTrack(playPauseButton)
+        loadTrackElements()
     }
     
     
